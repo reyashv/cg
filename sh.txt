@@ -1,0 +1,284 @@
+#include<windows.h>
+#include<GL/glut.h>
+#include<vector>
+#include<iostream>
+#define SCREEN_HEIGHT 480
+using namespace std;
+
+float xw_min, xw_max, yw_min, yw_max;
+class Point
+{
+    public:
+        float x;
+        float y;
+
+};
+
+vector<Point> window_points;
+vector<Point> polygon_points;
+vector<Point> left_vector;
+vector<Point> bottom_vector;
+vector<Point> right_vector;
+vector<Point> top_vector;
+int count=0;
+int poly_ct=0;
+
+void display()
+{
+    glColor3f(0,1,1);
+    glFlush();
+}
+
+void init()
+{
+    glPointSize(4);
+    glClearColor(0,0,0,1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0,640,0,480);
+}
+
+void left_boundary(Point p1, Point p2)
+{
+    float m=(p2.y-p1.y)/(p2.x-p1.x);
+    if(p1.x>=xw_min && p2.x>=xw_min) //in-in
+    {
+        left_vector.push_back(p2);
+    }
+
+    else if(p1.x>=xw_min && p2.x<xw_min) //in-out
+    {
+        Point inter;
+        inter.x=xw_min;
+        inter.y=p1.y+m*(inter.x-p1.x);
+        left_vector.push_back(inter);
+    }
+
+    else if(p1.x<xw_min && p2.x>=xw_min) //out-in
+    {
+        Point inter;
+        inter.x=xw_min;
+        inter.y=p1.y+m*(inter.x-p1.x);
+        left_vector.push_back(inter);
+        left_vector.push_back(p2);
+    }
+}
+
+void bottom_boundary(Point p1, Point p2)
+{
+    float m=(p2.y-p1.y)/(p2.x-p1.x);
+    if(p1.y>=yw_min && p2.y>=yw_min) //in-in
+    {
+        bottom_vector.push_back(p2);
+    }
+
+    else if(p1.y>=yw_min && p2.y<yw_min) //in-out
+    {
+        Point inter;
+        inter.y=yw_min;
+        inter.x=p1.x+((inter.y-p1.y)/m);
+        bottom_vector.push_back(inter);
+    }
+    else if(p1.y<yw_min && p2.y>=yw_min) //out-in
+    {
+        Point inter;
+        inter.y=yw_min;
+        inter.x=p1.x+((inter.y-p1.y)/m);
+        bottom_vector.push_back(inter);
+        bottom_vector.push_back(p2);
+    }
+}
+
+void right_boundary(Point p1, Point p2)
+{
+    float m=(p2.y-p1.y)/(p2.x-p1.x);
+    if(p1.x<=xw_max && p2.x<=xw_max) //in-in
+    {
+        right_vector.push_back(p2);
+    }
+
+    else if(p1.x<=xw_max && p2.x>xw_max) //in-out
+    {
+        Point inter;
+        inter.x=xw_max;
+        inter.y=p1.y+m*(inter.x-p1.x);
+        right_vector.push_back(inter);
+    }
+
+    else if(p1.x>xw_max && p2.x<=xw_max) //out-in
+    {
+        Point inter;
+        inter.x=xw_max;
+        inter.y=p1.y+m*(inter.x-p1.x);
+        right_vector.push_back(inter);
+        right_vector.push_back(p2);
+    }
+
+}
+
+void top_boundary(Point p1, Point p2)
+{
+    float m=(p2.y-p1.y)/(p2.x-p1.x);
+    if(p1.y<=yw_max && p2.y<=yw_max) //in-in
+    {
+        top_vector.push_back(p2);
+    }
+
+    else if(p1.y<=yw_max && p2.y>yw_max) //in-out
+    {
+        Point inter;
+        inter.y=yw_max;
+        inter.x=p1.x+((inter.y-p1.y)/m);
+        top_vector.push_back(inter);
+    }
+    else if(p1.y>yw_max && p2.y<=yw_max) //out-in
+    {
+        Point inter;
+        inter.y=yw_max;
+        inter.x=p1.x+((inter.y-p1.y)/m);
+        top_vector.push_back(inter);
+        top_vector.push_back(p2);
+    }
+
+}
+void polygon_clip()
+{
+    //LEFT
+    int i;
+    for(i=0;i<polygon_points.size()-1;i++)
+    {
+        left_boundary(polygon_points[i],polygon_points[i+1]);
+    }
+    left_boundary(polygon_points[polygon_points.size()-1],polygon_points[0]);
+    glColor3f(1,1, 1);
+    glBegin(GL_LINE_LOOP);
+        for(i=0;i<left_vector.size();i++)
+        {
+            glVertex2f(left_vector[i].x,left_vector[i].y);
+        }
+    glEnd();
+    glFlush();
+
+    //BOTTOM
+    for(i=0;i<left_vector.size()-1;i++)
+    {
+        bottom_boundary(left_vector[i],left_vector[i+1]);
+    }
+    bottom_boundary(left_vector[left_vector.size()-1],left_vector[0]);
+
+    glColor3f(0,0, 1);
+    glBegin(GL_LINE_LOOP);
+        for(i=0;i<bottom_vector.size();i++)
+        {
+            glVertex2f(bottom_vector[i].x,bottom_vector[i].y);
+        }
+    glEnd();
+    glFlush();
+
+    //RIGHT
+    for(i=0;i<bottom_vector.size()-1;i++)
+    {
+        right_boundary(bottom_vector[i],bottom_vector[i+1]);
+    }
+    right_boundary(bottom_vector[bottom_vector.size()-1],bottom_vector[0]);
+
+    glColor3f(1,0, 1);
+    glBegin(GL_LINE_LOOP);
+        for(i=0;i<right_vector.size();i++)
+        {
+            glVertex2f(right_vector[i].x,right_vector[i].y);
+        }
+    glEnd();
+    glFlush();
+
+    //TOP
+    for(i=0;i<right_vector.size()-1;i++)
+    {
+        top_boundary(right_vector[i],right_vector[i+1]);
+    }
+    top_boundary(right_vector[right_vector.size()-1],right_vector[0]);
+
+    glColor3f(1,0, 0);
+    glBegin(GL_LINE_LOOP);
+        for(i=0;i<top_vector.size();i++)
+        {
+            glVertex2f(top_vector[i].x,top_vector[i].y);
+        }
+    glEnd();
+    glFlush();
+
+}
+
+void mouse_handler(int button, int state, int x, int y)
+{
+    if(button==GLUT_LEFT && state==GLUT_DOWN)
+    {
+        y=SCREEN_HEIGHT-y;
+        Point new_point;
+        new_point.x=x;
+        new_point.y=y;
+
+        count++;
+        if(count<=2)
+        {
+            window_points.push_back(new_point);
+        }
+
+        if(count==2)
+        {
+            xw_min=window_points[0].x;
+            xw_max=window_points[1].x;
+            yw_min=window_points[0].y;
+            yw_max=window_points[1].y;
+            glBegin(GL_LINE_LOOP);
+                glVertex2f(xw_min, yw_min);
+                glVertex2f(xw_max, yw_min);
+                glVertex2f(xw_max, yw_max);
+                glVertex2f(xw_min, yw_max);
+            glEnd();
+            glFlush();
+        }
+        if(count>2)
+        {
+            poly_ct++;
+            polygon_points.push_back(new_point);
+        }
+
+    }
+
+    else if(button==GLUT_RIGHT_BUTTON && state==GLUT_DOWN)
+    {
+        int i;
+        glColor3f(0.7,0.3, 0.4);
+        glBegin(GL_LINE_LOOP);
+            for(i=0;i<polygon_points.size();i++)
+            {
+                glVertex2f(polygon_points[i].x,polygon_points[i].y);
+            }
+        glEnd();
+        glFlush();
+
+    }
+}
+
+void keyboard_handler(unsigned char key, int x, int y)
+{
+    if(key=='c' || key=='C')
+    {
+        polygon_clip();
+    }
+}
+
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE);
+    glutInitWindowPosition(100,200);
+    glutInitWindowSize(640,480);
+    glutCreateWindow("Polygon clipping");
+    glutDisplayFunc(display);
+    glutMouseFunc(mouse_handler);
+    glutKeyboardFunc(keyboard_handler);
+    init();
+    glutMainLoop();
+}

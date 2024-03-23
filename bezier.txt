@@ -1,0 +1,70 @@
+#include <windows.h>
+#include<GL/glut.h>
+#include<iostream>
+#include <iostream>
+#include<stdio.h>
+using namespace std;
+int arrX[4], arrY[4];
+int n=0;
+
+void myInit()
+{
+    glClearColor(0,0,0,0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0,640,0,480);
+}
+
+void drawPoint(int x, int y)
+{
+    glColor3d(1,1,1);
+    glPointSize(1);
+    glBegin(GL_POINTS);
+        glVertex2f(x,y);
+    glEnd();
+    glFlush();
+}
+
+void draw_curve()
+{
+    double u,x,y;
+    for (u=0.001;u<1;u=u+0.001)
+    {
+        x=(1-u)*(1-u)*(1-u)*arrX[0]+3*(1-u)*(1-u)*u*arrX[1]+3*u*u*(1-u)*arrX[2]+u*u*u*arrX[3];
+        y=(1-u)*(1-u)*(1-u)*arrY[0]+3*(1-u)*(1-u)*u*arrY[1]+3*u*u*(1-u)*arrY[2]+u*u*u*arrY[3];
+        drawPoint(x,y);
+    }
+}
+
+void mouseHandler(int button,int state,int x,int y){
+    if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN){
+        arrX[n]=x;
+        arrY[n]=480-y;
+        drawPoint(arrX[n],arrY[n]);
+        n++;
+    }
+    if(button==GLUT_RIGHT_BUTTON && state==GLUT_DOWN){
+        draw_curve();
+        glutPostRedisplay();
+        n=0;
+
+    }
+}
+
+void myDisplay()
+{
+    glFlush();
+}
+
+int main(int argc, char **argv)
+{
+    glutInit(&argc, argv);
+    glutInitWindowSize(640, 480);
+    glutInitWindowPosition(10, 10);
+    glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+    glutCreateWindow("Bezier Cubic Curve Drawing");
+    glutDisplayFunc(myDisplay);
+    glutMouseFunc(mouseHandler);
+    myInit();
+    glutMainLoop();
+}
