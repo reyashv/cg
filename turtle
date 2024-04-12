@@ -1,0 +1,210 @@
+import turtle
+def c_curve(depth):
+    start = "+f--f+"
+    for i in range(depth):
+        string = ""
+        for j in range(len(start)):
+            if start[j] == 'f':
+                string += "+f--f+"
+            else:
+                string += start[j]
+        start = string
+    return start
+
+def main():
+    string = c_curve(depth=5)
+    rules = {
+            'f': [t.forward, 10],
+            '+': [t.right, 45],
+            '-': [t.left, 45]
+        }
+    for i in range(len(string)):
+        rules.get(string[i])[0](rules.get(string[i])[1])        
+        
+t = turtle.Turtle()
+t.speed(0)
+main()
+turtle.mainloop()
+turtle.done()
+----------------------------------------------------
+import turtle
+def dragon_curve(depth):
+    start = "f-h"
+    for i in range(depth):
+        string = ""
+        for j in range(len(start)):
+            if start[j] == 'f':
+                string += "f-h"
+            elif start[j] == 'h':
+                string += "f+h"
+            else:
+                string += start[j]
+        start = string
+    return start
+
+def main():
+    t.left(90)
+    string = dragon_curve(depth=8)
+    rules = {
+            'f': [t.forward, 10],
+            'h': [t.forward, 10],
+            '+': [t.right, 90],
+            '-': [t.left, 90]
+        }
+    for i in range(len(string)):
+        rules.get(string[i])[0](rules.get(string[i])[1])        
+        
+t = turtle.Turtle()
+t.speed(0)
+main()
+turtle.mainloop()
+turtle.done()
+------------------------------------------------------------------
+import turtle
+import random
+screen = turtle.Screen()
+screen.setup(width=800, height=600)
+screen.bgcolor("skyblue")
+
+terrain = turtle.Turtle()
+terrain.speed(5)  
+def draw_terrain():
+    terrain.penup()
+    terrain.goto(-400, -200)
+    terrain.pendown()
+    terrain.color("green")
+    terrain.begin_fill()
+    for _ in range(2):
+        terrain.forward(800)
+        terrain.right(90)
+        terrain.forward(400)
+        terrain.right(90)
+    terrain.end_fill()
+
+    for _ in range(10):
+        x = random.randint(-400, 400)
+        y = random.randint(-200, 200)
+        terrain.penup()
+        terrain.goto(x, y)
+        terrain.pendown()
+        terrain.color("brown")
+        terrain.begin_fill()
+        terrain.circle(random.randint(10, 50))
+        terrain.end_fill()
+
+draw_terrain()
+terrain.hideturtle()
+screen.mainloop()
+----------------------------------------------------------
+import turtle
+import math
+
+def mandelbrot(z , c , n=20):
+    if abs(z) > 10 ** 12:
+        return float("nan")
+    elif n > 0:
+        return mandelbrot(z ** 2 + c, c, n - 1)
+    else:
+        return z ** 2 + c
+
+screenx, screeny = 800, 600
+complexPlaneX, complexPlaneY = (-2.0, 2.0), (-1.0, 2.0)
+step = 2
+turtle.tracer(0, 0)
+turtle.setup(screenx, screeny)
+
+screen = turtle.Screen()
+screen.bgcolor("black")
+screen.title("Mandelbrot Fractal (discretization step = %d)" % (int(step)))
+mTurtle = turtle.Turtle()
+mTurtle.penup()
+mTurtle.shape("square")
+pixelToX, pixelToY = (complexPlaneX[1] - complexPlaneX[0])/screenx, (complexPlaneY[1] - complexPlaneY[0])/screeny
+
+for px in range(-int(screenx/2), int(screenx/2), int(step)):
+    for py in range(-int(screeny/2), int(screeny/2), int(step)):
+        x, y = px * pixelToX, py * pixelToY
+        m =  mandelbrot(0, x + 1j * y)
+        if not math.isnan(m.real):
+            color = [abs(math.sin(m.imag)) for i in range(3)]
+            mTurtle.color(color)
+            mTurtle.dot(2.4, color)
+            mTurtle.goto(px, py)
+    turtle.update()
+turtle.mainloop()
+----------------------------------------------------------------------
+import turtle
+import math
+
+def julia(z, c, n=20):
+    if abs(z) > 10 ** 12:
+        return float("nan")
+    elif n > 0:
+        return julia(z ** 2 + c, c, n - 1)
+    else:
+        return z ** 2 + c
+
+screenx, screeny = 800, 600
+complexPlaneX, complexPlaneY = (-2.0, 2.0), (-2.0, 2.0)
+step = 2
+turtle.tracer(0, 0)
+turtle.setup(screenx, screeny)
+
+screen = turtle.Screen()
+screen.bgcolor("black")
+screen.title("Julia Fractal (discretization step = %d)" % (int(step)))
+jTurtle = turtle.Turtle()
+jTurtle.penup()
+jTurtle.shape("square")
+pixelToX, pixelToY = (complexPlaneX[1] - complexPlaneX[0]) / screenx, (complexPlaneY[1] - complexPlaneY[0]) / screeny
+
+c = complex(-0.7, 0.27015)
+for px in range(-int(screenx/2), int(screenx/2), int(step)):
+    for py in range(-int(screeny/2), int(screeny/2), int(step)):
+        x, y = px * pixelToX, py * pixelToY
+        m = julia(0, x + 1j * y + c)
+        if not math.isnan(m.real):
+            color = [abs(math.sin(m.imag)) for i in range(3)]
+            jTurtle.color(color)
+            jTurtle.dot(2.4, color)
+            jTurtle.goto(px, py)
+    turtle.update()
+turtle.mainloop()
+------------------------------------------------------------------------
+import turtle
+
+pen = turtle.Turtle()
+
+# function for creation of eye
+def eye(col, rad):
+	pen.down()
+	pen.fillcolor(col)
+	pen.begin_fill()
+	pen.circle(rad)
+	pen.end_fill()
+	pen.up()
+
+# draw face
+pen.fillcolor('yellow')
+pen.begin_fill()
+pen.circle(100)
+pen.end_fill()
+pen.up()
+
+# draw eyes
+pen.goto(-40, 120)
+eye('white', 15)
+pen.goto(-37, 125)
+eye('black', 5)
+pen.goto(40, 120)
+eye('white', 15)
+pen.goto(40, 125)
+eye('black', 5)
+
+# draw mouth
+pen.goto(-40, 85)
+pen.down()
+pen.right(90)
+pen.circle(40, 180)
+pen.up()
+
