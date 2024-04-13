@@ -62,39 +62,36 @@ turtle.done()
 ------------------------------------------------------------------
 import turtle
 import random
-screen = turtle.Screen()
-screen.setup(width=800, height=600)
-screen.bgcolor("skyblue")
-
-terrain = turtle.Turtle()
-terrain.speed(5)  
-def draw_terrain():
-    terrain.penup()
-    terrain.goto(-400, -200)
-    terrain.pendown()
-    terrain.color("green")
-    terrain.begin_fill()
-    for _ in range(2):
-        terrain.forward(800)
-        terrain.right(90)
-        terrain.forward(400)
-        terrain.right(90)
-    terrain.end_fill()
-
-    for _ in range(10):
-        x = random.randint(-400, 400)
-        y = random.randint(-200, 200)
-        terrain.penup()
-        terrain.goto(x, y)
-        terrain.pendown()
-        terrain.color("brown")
-        terrain.begin_fill()
-        terrain.circle(random.randint(10, 50))
-        terrain.end_fill()
-
-draw_terrain()
-terrain.hideturtle()
-screen.mainloop()
+n=int(input("number of iterations of the terrain (give less than 10 ):-"))
+step=float(input("step length for forward propagation :- "))
+def generate_string(n):
+    if n == 0:
+        return "F"
+    else:
+        prev_string = generate_string(n-1)
+        new_string = ""
+        for char in prev_string:
+            if char == "F":
+                new_string += "F+F*F+F"
+            else:
+                new_string += char
+        return new_string
+draw_string=generate_string(n)
+print(len(draw_string))
+turtle.penup()
+turtle.goto(-150, -150)
+turtle.pendown()
+turtle.speed(1000000)
+for i in draw_string:
+    if i=='F':
+        color = (random.random(), random.random(), random.random())  
+        turtle.color(color)
+        turtle.forward(step)
+    elif i=='+':
+        turtle.left(60)
+    elif i=='*':
+        turtle.right(120)
+turtle.done()
 ----------------------------------------------------------
 import turtle
 import math
